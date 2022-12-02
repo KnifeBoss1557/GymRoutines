@@ -1,0 +1,24 @@
+Features:
+* Redesigned 'routine editor' screen
+* Redesigned 'workout in progress' screen
+* Added workout information to 'view workout' screen
+
+Bug fixes:
+* Renamed backups from splitfit_... to gymroutines_... (8af1b2cd)
+* Fixed set text field values being incorrect when position changes (e9a707e2, de6fa878)
+* Routine and workout related database operations now run asynchronously
+* Fixed crash on insights tab when user has exactly one workout (2e5c6d8f)
+* Fixed crash on backup restore (fe5496d3)
+
+Development:
+* Update database version
+  * v37 (73a98b3a): Removes SetGroups
+  * v38 (462cc0ef): Replaces JSON with table relationships
+  * v39 (e3004b67): Reimplements SetGroups with table relationships
+  * v40 (6c94f0fc): Adds foreign keys
+  * v41 (44b6367d): Adds indices
+  * v42 (ad8fbb29): Removes WorkoutSet.position, RoutineSet.position
+* Update Dependencies (9f9e58f0, cb22598e)
+* Add Roboto Slab font (41a2eccf)
+* Completely revamp WorkoutInProgress, RoutineEditor frontend and backend
+* Remove 'WorkoutCompleted' screen for now (a51d77c8)

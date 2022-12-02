@@ -1,0 +1,146 @@
+
+
+package com.noahjutz.gymroutines.ui.exercises.editor
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.noahjutz.gymroutines.R
+import com.noahjutz.gymroutines.ui.components.TopBar
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
+
+@ExperimentalMaterialApi
+@Composable
+fun ExerciseEditor(
+    popBackStack: () -> Unit,
+    exerciseId: Int,
+    viewModel: ExerciseEditorViewModel = getViewModel { parametersOf(exerciseId) },
+) {
+    var showDiscardAlert by remember { mutableStateOf(false) }
+    if (showDiscardAlert) {
+        AlertDialog(
+            onDismissRequest = { showDiscardAlert = false },
+            title = { Text(stringResource(R.string.dialog_title_discard)) },
+            confirmButton = {
+                Button(onClick = popBackStack) {
+                    Text(stringResource(R.string.dialog_confirm_discard))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardAlert = false }) {
+                    Text(stringResource(R.string.btn_cancel))
+                }
+            }
+        )
+    }
+
+    val isSavingEnabled by viewModel.isSavingEnabled.collectAsState(initial = false)
+
+    BackHandler(enabled = isSavingEnabled) {
+        showDiscardAlert = true
+    }
+
+    Scaffold(
+        topBar = {
+            TopBar(
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (isSavingEnabled) {
+                                showDiscardAlert = true
+                            } else {
+                                popBackStack()
+                            }
+                        },
+                        content = { Icon(Icons.Default.Close, stringResource(R.string.btn_cancel)) },
+                    )
+                },
+                title = stringResource(R.string.screen_edit_exercise),
+                actions = {
+                    TextButton(
+                        modifier = Modifier.padding(end = 8.dp),
+                        onClick = {
+                            viewModel.save {
+                                popBackStack()
+                            }
+                        },
+                        enabled = isSavingEnabled
+                    ) {
+                        Text(stringResource(R.string.btn_save))
+                    }
+                }
+            )
+        },
+        content = {
+            LazyColumn {
+                item {
+                    val name by viewModel.name.collectAsState()
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                        value = name,
+                        onValueChange = viewModel::setName,
+                        label = { Text(stringResource(R.string.label_exercise_name)) },
+                        singleLine = true,
+                    )
+                    val notes by viewModel.notes.collectAsState()
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        value = notes,
+                        onValueChange = viewModel::setNotes,
+                        label = { Text(stringResource(R.string.label_exercise_notes)) },
+                    )
+                    val logReps by viewModel.logReps.collectAsState()
+                    ListItem(
+                        Modifier.toggleable(
+                            value = logReps,
+                            onValueChange = viewModel::setLogReps
+                        ),
+                        text = { Text(stringResource(R.string.checkbox_log_reps)) },
+                        icon = { Checkbox(checked = logReps, null) },
+                    )
+                    val logWeight by viewModel.logWeight.collectAsState()
+                    ListItem(
+                        Modifier.toggleable(
+                            value = logWeight,
+                            onValueChange = viewModel::setLogWeight
+                        ),
+                        text = { Text(stringResource(R.string.checkbox_log_weight)) },
+                        icon = { Checkbox(checked = logWeight, null) },
+                    )
+                    val logTime by viewModel.logTime.collectAsState()
+                    ListItem(
+                        Modifier.toggleable(
+                            value = logTime,
+                            onValueChange = viewModel::setLogTime
+                        ),
+                        text = { Text(stringResource(R.string.checkbox_log_time)) },
+                        icon = { Checkbox(checked = logTime, null) },
+                    )
+                    val logDistance by viewModel.logDistance.collectAsState()
+                    ListItem(
+                        Modifier.toggleable(
+                            value = logDistance,
+                            onValueChange = viewModel::setLogDistance
+                        ),
+                        text = { Text(stringResource(R.string.checkbox_log_distance)) },
+                        icon = { Checkbox(checked = logDistance, null) },
+                    )
+                }
+            }
+        }
+    )
+}
